@@ -1,2 +1,6 @@
 python-telegram-bot==20.3
 apscheduler==3.10.4
+datetime
+asyncio
+sqlite3
+Llama
