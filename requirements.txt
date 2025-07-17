@@ -1,6 +1,4 @@
-python-telegram-bot==20.3
+python-telegram-bot==20.6
 apscheduler==3.10.4
-datetime
-asyncio
-sqlite3
-Llama
+llama-cpp-python==0.2.72
+python-dotenv==1.0.1

@@ -8,8 +8,11 @@ from datetime import datetime, timedelta
 from llama_cpp import Llama
 import asyncio
 import sqlite3
+import os
+from dotenv import load_dotenv
 
-BOT_TOKEN = "BOT_TOKEN"
+load_dotenv()
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # 🔧 Scheduler va baza ulanishi
 scheduler = BackgroundScheduler()
