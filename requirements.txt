@@ -2,3 +2,4 @@ python-telegram-bot==20.6
 apscheduler==3.10.4
 llama-cpp-python==0.2.72
 python-dotenv==1.0.1
+requests
