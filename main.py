@@ -9,14 +9,24 @@ from llama_cpp import Llama
 import asyncio
 import sqlite3
 import os
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-if not os.path.exists("mistral.gguf"):
-    os.system("wget https://huggingface.co/khos019/llama-reminder-model/resolve/main/mistral.gguf -O mistral.gguf")
+MODEL_URL = "https://huggingface.co/khos019/llama-reminder-model/resolve/main/mistral.gguf"
+MODEL_PATH = "mistral.gguf"
 
+# Fayl yo'qligini tekshirib, yuklab olamiz
+if not os.path.exists(MODEL_PATH):
+    print("Downloading model from Hugging Face...")
+    response = requests.get(MODEL_URL, stream=True)
+    with open(MODEL_PATH, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    print("Download completed!")
 
 # 🔧 Scheduler va baza ulanishi
 scheduler = BackgroundScheduler()
