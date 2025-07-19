@@ -14,6 +14,10 @@ from dotenv import load_dotenv
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
+if not os.path.exists("mistral.gguf"):
+    os.system("wget https://huggingface.co/khos019/llama-reminder-model/resolve/main/mistral.gguf -O mistral.gguf")
+
+
 # 🔧 Scheduler va baza ulanishi
 scheduler = BackgroundScheduler()
 scheduler.start()
@@ -30,11 +34,7 @@ CREATE TABLE IF NOT EXISTS reminders (
 ''')
 conn.commit()
 
-llm = Llama(
-    model_path="C:/Users/khos/Downloads/mistral.gguf",
-    n_ctx=2048,
-    n_threads=4
-)
+llm = Llama(model_path="mistral.gguf")
 
 # Bu loop ni global saqlaymiz (asosiy asyncio loop)
 main_loop = asyncio.get_event_loop()
