@@ -53,7 +53,6 @@ main_loop = asyncio.get_event_loop()
 # Komanda funksiyalari
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        # This bot works to send reminders
         "Assalomu alaykum!\nThis bot works to send reminders.\n\n"
         "Commands:\n"
         "/add — add a new reminder\n"
@@ -85,7 +84,6 @@ async def send_reminder(bot, user_id, message, reminder_id=None):
         cursor.execute("UPDATE reminders SET status = 'done' WHERE id = ?", (reminder_id,))
         conn.commit()
 
-
 # Wrapper: async funksiyani thread-safe usulda chaqirish
 def run_async_reminder(bot, user_id, message, reminder_id):
     asyncio.run_coroutine_threadsafe(
@@ -93,14 +91,11 @@ def run_async_reminder(bot, user_id, message, reminder_id):
         main_loop
     )
 
-
 # Eslatma vaqtini qabul qilish va schedulerga qo‘shish
 async def add_code(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user.id
     text = update.message.text.strip()
-    # while True:
-    prompt = text
-    prompt = nlp(prompt)
+    prompt = nlp(text)
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     formatted_prompt = f"""### User:
 Today's date is {now}. Extract the date time from this following sentence and return it in 'YYYY-MM-DD HH:MM'
@@ -109,8 +104,13 @@ output only date and time.don't write excess thing.DO NOT include any extra text
 ### Assistant:
 """
 
-    output = llm(formatted_prompt, max_tokens=200, stop=["###"])
-    # print("🤖 Bot:", output["choices"][0]["text"].strip())
+    # 🔄 Modelni async fon ishida chaqirish
+    loop = asyncio.get_event_loop()
+    output = await loop.run_in_executor(
+        None,
+        lambda: llm(formatted_prompt, max_tokens=200, stop=["###"])
+    )
+
     text = output["choices"][0]["text"].strip()
     if text[0].isdigit() == 0:
         text = text[-17:-1]
@@ -151,7 +151,6 @@ output only date and time.don't write excess thing.DO NOT include any extra text
     except ValueError:
         await update.message.reply_text("❌ Wrong format! please enter in this format `YYYY-MM-DD HH:MM`.")
 
-
 # Eski eslatmalarni tiklash
 def rechedule_all_reminders(scheduler, bot):
     cursor.execute("SELECT id, user_id, reminder_time FROM reminders WHERE status = 'pending'")
@@ -183,7 +182,6 @@ def rechedule_all_reminders(scheduler, bot):
                 id=f"job_{rem_id}_final"
             )
 
-
 # Eslatmalar ro‘yxatini ko‘rsatish
 async def list_reminders(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -198,7 +196,6 @@ async def list_reminders(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = f"🕒 {rem_time} - 📌 Reminder"
         keyboard = [[InlineKeyboardButton("❌ Cancel", callback_data=f"cancel_{rem_id}")]]
         await update.message.reply_text(text, reply_markup=InlineKeyboardMarkup(keyboard))
-
 
 # Inline tugma orqali eslatmani bekor qilish
 async def handle_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -223,7 +220,6 @@ async def handle_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
 
         await query.edit_message_text("⛔ Reminder was canceled.")
-
 
 # 🚀 Botni ishga tushurish
 app = ApplicationBuilder().token(BOT_TOKEN).build()
